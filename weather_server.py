@@ -1,9 +1,10 @@
-# echo_server.py
+# weather_server.py
 import socket
 import requests
 import json  # required for OpenWeatherMap API
 import logging
 import configparser
+from datetime import date, datetime
 
 ''' Commands:
     - TEMP -> gets the current temp
@@ -15,7 +16,7 @@ import configparser
     - EXIT -> exits
 '''
 #set up log
-logging.basicConfig(filename='server.log', filemode='w', format='%(asctime)s  %(message)s', datefmt='%a %b %d %H:%M:%S %Y', level='INFO')
+logging.basicConfig(filename='server.log', filemode='w', format='%(asctime)s  %(levelname)s %(message)s', datefmt='%a %b %d %H:%M:%S %Y', level='INFO')
 logging.info('Application started. Log created.')
 
 #set up config parser
@@ -23,14 +24,16 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 # get IP address and port
-host = ''        # Symbolic name meaning all available interfaces
-port = 12345     # Arbitrary non-privileged port
+host = config['NETWORK']['ip']       
+port = int(config['NETWORK']['port_number'])      
 # open socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((host, port))  # bind to address and port
 s.listen(1)  # listen for connection
 conn, addr = s.accept()  # when client sends connection, accept it
-print('Connected by', addr)
+now = datetime.now()
+dt_string = now.strftime("%a %b %d %H:%M:%S %Y")
+print(dt_string + ' weather_server starting on port ' + str(port)) #change this
 stillRunning = True
 while stillRunning:
     data = conn.recv(1024).decode()  # receive command from client
